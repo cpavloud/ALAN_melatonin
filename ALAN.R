@@ -1,6 +1,6 @@
 # ============================================================
 'R code for the paper "Disrupted darkness: 
-The impact of artificial light at night on melatonin secretion of 
+The impact of anthropogenic light at night on melatonin secretion of 
 Hermodice carunculata (Polychaeta, Annelida)" by Keklikoglou et al.
 
 Christina Pavloudi
@@ -26,7 +26,7 @@ https://cpavloud.github.io/mysite/
 ################################################################################
 
 #list of CRAN packages needed
-.packages = c("tidyverse", "ggforce", "rstatix", "report", "ggpubr")
+.packages = c("tidyverse", "ggforce", "rstatix", "report", "ggpubr", "multcomp")
 
 #install CRAN packages (if not already installed)
 .inst <- .packages %in% installed.packages()
@@ -40,6 +40,7 @@ packageVersion("ggforce"); citation("ggforce")
 packageVersion("rstatix"); citation("rstatix")
 packageVersion("report"); citation("report")
 packageVersion("ggpubr"); citation("ggpubr")
+packageVersion("multcomp"); citation("multcomp")
 
 R.Version()
 citation()
@@ -136,6 +137,38 @@ report::report(melatonin_two_way_anova)
 #run post-hoc tests (Tukey HSD test)
 stats::TukeyHSD(melatonin_two_way_anova)
 
+#run ANOVA on values of melatonin_12H_20_8
+melatonin_12H_20_8_two_way_anova <- stats::aov(Concentration ~ Treatment * Time, data = melatonin_12H_20_8)
+#check the summary of the ANOVA results
+summary(melatonin_12H_20_8_two_way_anova)
+
+#run the Kolmogorov-Smirnov test for the normality of residuals
+DescTools::LillieTest(melatonin_12H_20_8_two_way_anova$residuals) 
+#run the Shapiro-Wilk test for the normality of residuals
+stats::shapiro.test(melatonin_12H_20_8_two_way_anova$residuals)
+
+#check normality visually using a histogram of the residuals
+hist(melatonin_12H_20_8_two_way_anova$residuals)
+#check normality visually using a QQ-plot of the residuals
+car::qqPlot(melatonin_12H_20_8_two_way_anova$residuals,
+            id = FALSE) # id = FALSE to remove point identification
+
+#check the homogeneity of variances using a boxplot
+boxplot(Concentration ~ Treatment * Time, data = melatonin_12H_20_8)
+#run the Levene’s test for homogeneity of variances
+car::leveneTest(Concentration ~ Treatment * Time, data = melatonin_12H_20_8)
+
+#check if there are outliers
+melatonin_12H_20_8 %>%
+  group_by(Treatment, Time) %>%
+  rstatix::identify_outliers(Concentration)
+
+#interpretations of ANOVA results
+report::report(melatonin_12H_20_8_two_way_anova)
+
+#run post-hoc tests (Tukey HSD test)
+stats::TukeyHSD(melatonin_12H_20_8_two_way_anova)
+
 #log transform the melatonin concentration for melatonin_12H_8_20
 melatonin_12H_8_20_log <- melatonin_12H_8_20 %>%
   mutate(log_concentration = log2(Concentration))
@@ -207,6 +240,70 @@ report::report(serotonin_two_way_anova)
 
 #run post-hoc tests (Tukey HSD test)
 stats::TukeyHSD(serotonin_two_way_anova)
+
+#run ANOVA on values of serotonin_12H_20_8
+serotonin_12H_20_8_two_way_anova <- stats::aov(Concentration ~ Treatment * Time, data = serotonin_12H_20_8)
+#check the summary of the ANOVA results
+summary(serotonin_12H_20_8_two_way_anova)
+
+#run the Kolmogorov-Smirnov test for the normality of residuals
+DescTools::LillieTest(serotonin_12H_20_8_two_way_anova$residuals) 
+#run the Shapiro-Wilk test for the normality of residuals
+stats::shapiro.test(serotonin_12H_20_8_two_way_anova$residuals)
+
+#check normality visually using a histogram of the residuals
+hist(serotonin_12H_20_8_two_way_anova$residuals)
+#check normality visually using a QQ-plot of the residuals
+car::qqPlot(serotonin_12H_20_8_two_way_anova$residuals,
+            id = FALSE) # id = FALSE to remove point identification
+
+#check the homogeneity of variances using a boxplot
+boxplot(Concentration ~ Treatment * Time, data = serotonin_12H_20_8)
+#run the Levene’s test for homogeneity of variances
+car::leveneTest(Concentration ~ Treatment * Time, data = serotonin_12H_20_8)
+
+#check if there are outliers
+serotonin_12H_20_8 %>%
+  group_by(Treatment, Time) %>%
+  rstatix::identify_outliers(Concentration)
+
+#interpretations of ANOVA results
+report::report(serotonin_12H_20_8_two_way_anova)
+
+#run post-hoc tests (Tukey HSD test)
+stats::TukeyHSD(serotonin_12H_20_8_two_way_anova)
+
+#run ANOVA on values of serotonin_12H_8_20
+serotonin_12H_8_20_two_way_anova <- stats::aov(Concentration ~ Treatment * Time, data = serotonin_12H_8_20)
+#check the summary of the ANOVA results
+summary(serotonin_12H_8_20_two_way_anova)
+
+#run the Kolmogorov-Smirnov test for the normality of residuals
+DescTools::LillieTest(serotonin_12H_8_20_two_way_anova$residuals) 
+#run the Shapiro-Wilk test for the normality of residuals
+stats::shapiro.test(serotonin_12H_8_20_two_way_anova$residuals)
+
+#check normality visually using a histogram of the residuals
+hist(serotonin_12H_8_20_two_way_anova$residuals)
+#check normality visually using a QQ-plot of the residuals
+car::qqPlot(serotonin_12H_8_20_two_way_anova$residuals,
+            id = FALSE) # id = FALSE to remove point identification
+
+#check the homogeneity of variances using a boxplot
+boxplot(Concentration ~ Treatment * Time, data = serotonin_12H_8_20)
+#run the Levene’s test for homogeneity of variances
+car::leveneTest(Concentration ~ Treatment * Time, data = serotonin_12H_8_20)
+
+#check if there are outliers
+serotonin_12H_8_20 %>%
+  group_by(Treatment, Time) %>%
+  rstatix::identify_outliers(Concentration)
+
+#interpretations of ANOVA results
+report::report(serotonin_12H_8_20_two_way_anova)
+
+#run post-hoc tests (Tukey HSD test)
+stats::TukeyHSD(serotonin_12H_8_20_two_way_anova)
 
 
 ################################################################################
@@ -318,6 +415,39 @@ report::report(tryptamine_12H_8_20_log_two_way_anova)
 
 #run post-hoc tests (Tukey HSD test)
 stats::TukeyHSD(tryptamine_12H_8_20_log_two_way_anova)
+
+
+#run ANOVA on values of tryptamine_12H_20_8
+tryptamine_12H_20_8_two_way_anova <- stats::aov(Concentration ~ Treatment * Time, data = tryptamine_12H_20_8)
+#check the summary of the ANOVA results
+summary(tryptamine_12H_20_8_two_way_anova)
+
+#run the Kolmogorov-Smirnov test for the normality of residuals
+DescTools::LillieTest(tryptamine_12H_20_8_two_way_anova$residuals) 
+#run the Shapiro-Wilk test for the normality of residuals
+stats::shapiro.test(tryptamine_12H_20_8_two_way_anova$residuals)
+
+#check normality visually using a histogram of the residuals
+hist(tryptamine_12H_20_8_two_way_anova$residuals)
+#check normality visually using a QQ-plot of the residuals
+car::qqPlot(tryptamine_12H_20_8_two_way_anova$residuals,
+            id = FALSE) # id = FALSE to remove point identification
+
+#check the homogeneity of variances using a boxplot
+boxplot(Concentration ~ Treatment * Time, data = tryptamine_12H_20_8)
+#run the Levene’s test for homogeneity of variances
+car::leveneTest(Concentration ~ Treatment * Time, data = tryptamine_12H_20_8)
+
+#check if there are outliers
+tryptamine_12H_20_8 %>%
+  group_by(Treatment, Time) %>%
+  rstatix::identify_outliers(Concentration)
+
+#interpretations of ANOVA results
+report::report(tryptamine_12H_20_8_two_way_anova)
+
+#run post-hoc tests (Tukey HSD test)
+stats::TukeyHSD(tryptamine_12H_20_8_two_way_anova)
 
 ################################################################################
 ################################# ONE-WAY ANOVA ################################
@@ -474,7 +604,6 @@ Tukey_melatonin_12H_8_20_LL_one_way_anova$group2 <- group2
 Tukey_melatonin_12H_8_20_LL_one_way_anova <- Tukey_melatonin_12H_8_20_LL_one_way_anova %>%
   mutate(significance = case_when(`p adj` <= 0.01 ~ "**", 
                                   `p adj` <= 0.05 ~ "*"))
-
 
 ################################################################################
 #################################### BOXPLOTS ##################################
@@ -640,6 +769,59 @@ tryptamine_LL_plot <-
 tryptamine_LL_plot
 ggsave("tryptamine_LL_plot_publication.png", width = 10, height = 6, dpi = 600)
 ggsave("tryptamine_LL_plot_publication.eps", width = 10, height = 6, dpi = 600)
+
+
+################################################################################
+################ Simultaneous Tests for General Linear Hypotheses ##############
+################################################################################
+
+################################################################################
+################################### melatonin ##################################
+################################################################################
+
+#here, we will be using the anova fitted models we previously computed
+#to test linear hypothesis using the glht() function
+melatonin_glht <- glht(melatonin_two_way_anova) 
+summary(melatonin_glht)
+#Display and save the results from object of glht() function  
+png(filename="mcc_melatonin.png", width = 22, height = 20, units = "cm", res = 600)
+par(mar = c(5.1, 12, 4.1, 2.1))
+plot(melatonin_glht)
+mtext("Melatonin")
+dev.off()
+
+
+################################################################################
+################################### serotonin ##################################
+################################################################################
+
+#here, we will be using the anova fitted models we previously computed
+#to test linear hypothesis using the glht() function
+serotonin_glht <- glht(serotonin_two_way_anova) 
+summary(serotonin_glht)
+#Display and save the results from object of glht() function  
+png(filename="mcc_serotonin.png", width = 22, height = 20, units = "cm", res = 600)
+par(mar = c(5.1, 12, 4.1, 2.1))
+plot(serotonin_glht)
+mtext("Serotonin")
+dev.off()
+
+
+################################################################################
+################################### tryptamine #################################
+################################################################################
+
+#here, we will be using the anova fitted models we previously computed
+#to test linear hypothesis using the glht() function
+tryptamine_glht <- glht(tryptamine_log_two_way_anova) 
+summary(tryptamine_glht)
+#Display and save the results from object of glht() function  
+png(filename="mcc_tryptamine.png", width = 22, height = 20, units = "cm", res = 600)
+par(mar = c(5.1, 12, 4.1, 2.1))
+plot(tryptamine_glht)
+mtext("Tryptamine")
+dev.off()
+
 
 ################################################################################
 ################################################################################
